@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const patientRoutes = require("./routes/patientRoutes");
 const campaignRoutes = require("./routes/campaignRoutes");
 const outreachRoutes = require("./routes/outreachRoutes");
+const queueRoutes = require("./routes/queueRoutes");
 
 const app = express();
 
@@ -21,5 +22,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/patients", patientRoutes);
 app.use("/api/campaigns", campaignRoutes);
 app.use("/api/outreach", outreachRoutes);
+app.use("/api/queue", queueRoutes);
 
 module.exports = app;
