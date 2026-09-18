@@ -1,4 +1,6 @@
 const Campaign = require("../models/Campaign");
+const Patient = require("../models/Patient");
+const { checkEligibility } = require("../services/eligibilityService");
 
 const createCampaign = async (req, res) => {
     try {
@@ -84,6 +86,51 @@ const getCampaigns = async (req, res) => {
     }
 };
 
+const getCampaignEligiblePatients = async (req, res) => {
+    try {
+        const campaign = await Campaign.findOne({
+            _id: req.params.campaignId,
+            hospitalId: req.user.hospitalId
+        });
+
+        if (!campaign) {
+            return res.status(404).json({
+                message: "Campaign not found"
+            });
+        }
+
+        const patients = await Patient.find({
+            hospitalId: req.user.hospitalId
+        });
+
+        const eligiblePatients = patients.filter((patient) => {
+            const result = checkEligibility(
+                patient,
+                campaign
+            );
+
+            return result.eligible;
+        });
+
+        res.json({
+            campaignId: campaign._id,
+            campaignName: campaign.name,
+            count: eligiblePatients.length,
+            patients: eligiblePatients
+        });
+
+    } catch (error) {
+        console.error(
+            "Get eligible patients error:",
+            error.message
+        );
+
+        res.status(500).json({
+            message: "Server error"
+        });
+    }
+};
+
 const updateCampaign = async (req, res) => {
     try {
         const campaign = await Campaign.findOne({
@@ -113,8 +160,22 @@ const updateCampaign = async (req, res) => {
             });
         }
 
+        // Update status
         if (req.body.status) {
             campaign.status = req.body.status;
+        }
+
+        // Update priority
+        if (req.body.priority !== undefined) {
+            const priority = Number(req.body.priority);
+
+            if (isNaN(priority) || priority < 1) {
+                return res.status(400).json({
+                    message: "Priority must be a positive number"
+                });
+            }
+
+            campaign.priority = priority;
         }
 
         await campaign.save();
@@ -139,5 +200,6 @@ const updateCampaign = async (req, res) => {
 module.exports = {
     createCampaign,
     getCampaigns,
-    updateCampaign
+    updateCampaign,
+     getCampaignEligiblePatients
 };

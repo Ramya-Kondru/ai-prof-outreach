@@ -1,13 +1,25 @@
 const express = require("express");
 
 const {
-    createOutreachForPatient
+    createOutreachForPatient,
+    getOutreach,
+    completeOutreach
 } = require("../controllers/outreachController");
 
 const protect = require("../middleware/authMiddleware");
 const authorize = require("../middleware/roleMiddleware");
 
 const router = express.Router();
+
+router.get(
+    "/",
+    protect,
+    authorize(
+        "HOSPITAL_ADMIN",
+        "CAMPAIGN_MANAGER"
+    ),
+    getOutreach
+);
 
 router.post(
     "/",
@@ -17,6 +29,16 @@ router.post(
         "CAMPAIGN_MANAGER"
     ),
     createOutreachForPatient
+);
+
+router.patch(
+    "/:outreachId",
+    protect,
+    authorize(
+        "HOSPITAL_ADMIN",
+        "CAMPAIGN_MANAGER"
+    ),
+    completeOutreach
 );
 
 module.exports = router;

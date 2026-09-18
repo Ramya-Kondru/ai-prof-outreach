@@ -1,0 +1,43 @@
+.admin-page {
+    padding: 30px;
+}
+
+.admin-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-top: 25px;
+}
+
+.admin-card h2 {
+    margin-bottom: 25px;
+}
+
+.admin-error {
+    padding: 20px;
+}
+
+.admin-error h2 {
+    margin-bottom: 10px;
+}
+
+.hospital-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.hospital-details div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.hospital-details span {
+    font-size: 13px;
+    color: #666;
+}
+
+.hospital-details strong {
+    font-size: 16px;
+}

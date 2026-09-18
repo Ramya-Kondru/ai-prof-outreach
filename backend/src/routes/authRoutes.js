@@ -1,9 +1,12 @@
 const express = require("express");
-const { login } = require("../controllers/authController");
-const protect = require("../middleware/authMiddleware");  //Is this person authenticated?
-const authorize = require("../middleware/roleMiddleware"); //Is this authenticated user a hospital admin?
+const { register,login } = require("../controllers/authController");
+const protect = require("../middleware/authMiddleware");  // Is this person authenticated?
+const authorize = require("../middleware/roleMiddleware"); // Is this authenticated user a hospital admin?
 
 const router = express.Router();
+
+
+router.post("/register", register);
 
 router.post("/login", login);
 

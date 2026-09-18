@@ -1,0 +1,78 @@
+.queue-page {
+  width: 100%;
+}
+
+.process-queue-button {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.process-queue-button:hover {
+  background: #1d4ed8;
+}
+
+.process-queue-button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.queue-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 25px;
+}
+
+.queue-empty,
+.queue-result {
+  text-align: center;
+  padding: 35px 20px;
+}
+
+.queue-empty h2,
+.queue-result h2 {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.queue-empty p,
+.queue-result p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.queue-stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.queue-stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.queue-stat-card span {
+    display: block;
+    color: #6b7280;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.queue-stat-card strong {
+    font-size: 26px;
+    color: #111827;
+}
+@media (max-width: 900px) {
+    .queue-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
