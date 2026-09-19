@@ -5,8 +5,8 @@ const TriageAssessment =
     require("../models/TriageAssessment");
 
 const {
-    performClinicalTriage
-} = require("../services/triageService");
+    analyzeConversationForTriage
+} = require("../services/clinicalTriageService");
 
 
 // ======================================================
@@ -68,40 +68,19 @@ const runTriage = async (req, res) => {
         }
 
 
-        const latestPatientMessage =
-            patientMessages[
-                patientMessages.length - 1
-            ];
-
-
         // ==================================================
         // RUN CLINICAL TRIAGE
         // ==================================================
 
         const result =
-            await performClinicalTriage({
-
-                hospitalId:
-                    req.user.hospitalId,
-
-                patientId:
-                    conversation.patientId,
-
-                outreachId:
-                    conversation.outreachId,
-
-                conversationId:
-                    conversation._id,
-
-                patientMessage:
-                    latestPatientMessage.message
-
-            });
+            analyzeConversationForTriage(
+                conversation
+            );
 
 
         console.log(
             "Clinical triage result:",
-            result.triageResult
+            result
         );
 
 
@@ -134,11 +113,10 @@ const runTriage = async (req, res) => {
                     result.redFlags || [],
 
                 reasoning:
-                    result.reason,
+                    result.reasoning,
 
                 recommendedAction:
-                    result.recommendedAction ||
-                    result.reason,
+                    result.recommendedAction,
 
                 requiresHumanReview:
                     result.requiresHumanReview,
@@ -161,13 +139,13 @@ const runTriage = async (req, res) => {
             assessment,
 
             triageResult:
-                result.triageResult,
+                result,
 
             escalation:
-                result.escalation,
+                null,
 
             followUp:
-                result.followUp
+                null
 
         });
 
