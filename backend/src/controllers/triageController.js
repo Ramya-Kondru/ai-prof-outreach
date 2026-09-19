@@ -6,7 +6,7 @@ const TriageAssessment =
 
 const {
     analyzeConversationForTriage
-} = require("../services/clinicalTriageService");
+} = require("../services/triageService");
 
 
 // ======================================================
@@ -68,11 +68,17 @@ const runTriage = async (req, res) => {
         }
 
 
+        const latestPatientMessage =
+            patientMessages[
+                patientMessages.length - 1
+            ];
+
+
         // ==================================================
         // RUN CLINICAL TRIAGE
         // ==================================================
 
-        const result =
+        const triageResult =
             analyzeConversationForTriage(
                 conversation
             );
@@ -80,7 +86,7 @@ const runTriage = async (req, res) => {
 
         console.log(
             "Clinical triage result:",
-            result
+            triageResult
         );
 
 
@@ -104,22 +110,22 @@ const runTriage = async (req, res) => {
                     conversation.outreachId,
 
                 urgency:
-                    result.urgency,
+                    triageResult.urgency,
 
                 symptoms:
-                    result.symptoms || [],
+                    triageResult.symptoms || [],
 
                 redFlags:
-                    result.redFlags || [],
+                    triageResult.redFlags || [],
 
                 reasoning:
-                    result.reasoning,
+                    triageResult.reasoning,
 
                 recommendedAction:
-                    result.recommendedAction,
+                    triageResult.recommendedAction,
 
                 requiresHumanReview:
-                    result.requiresHumanReview,
+                    triageResult.requiresHumanReview,
 
                 source:
                     "RULE_BASED_DEMO"
@@ -138,14 +144,7 @@ const runTriage = async (req, res) => {
 
             assessment,
 
-            triageResult:
-                result,
-
-            escalation:
-                null,
-
-            followUp:
-                null
+            triageResult
 
         });
 
