@@ -13,89 +13,166 @@ import Admin from "./pages/Admin/Admin";
 import Home from "./pages/Home/Home";
 import AITest from "./pages/AITest/AITest";
 import Documentation from "./pages/Documentation/Documentation";
+
 import ProtectedRoute from "./components/ProtectedRoute";
+import RoleRoute from "./components/RoleRoute";
+
 
 function App() {
-  return (
-    <BrowserRouter>
 
-      <Routes>
+    return (
 
-        {/* Public Routes */}
-        <Route
-          path="/"
-          element={<Home />}
-        />
+        <BrowserRouter>
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        <Route
-          path="/register"
-          element={<Register />}
-        />
+            <Routes>
 
 
-        {/* Protected Application */}
+                {/* ==================================================
+                    PUBLIC ROUTES
+                ================================================== */}
 
-        <Route element={<ProtectedRoute />}>
+                <Route
+                    path="/"
+                    element={<Home />}
+                />
 
-          <Route element={<DashboardLayout />}>
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
 
-            <Route
-              path="/dashboard"
-              element={<Dashboard />}
-            />
-
-            <Route
-              path="/patients"
-              element={<Patients />}
-            />
-
-            <Route
-              path="/campaigns"
-              element={<Campaigns />}
-            />
-
-            <Route
-              path="/eligibility"
-              element={<Eligibility />}
-            />
-
-            <Route
-              path="/outreach"
-              element={<Outreach />}
-            />
-
-            <Route
-              path="/queue"
-              element={<Queue />}
-            />
-
-            <Route
-              path="/admin"
-              element={<Admin />}
-            />
-            <Route
-              path="/ai-test"
-              element={<AITest />}
-            />
-            <Route
-    path="/documentation"
-    element={<Documentation />}
-/>
+                <Route
+                    path="/register"
+                    element={<Register />}
+                />
 
 
-          </Route>
+                {/* ==================================================
+                    AUTHENTICATED APPLICATION
+                ================================================== */}
 
-        </Route>
+                <Route element={<ProtectedRoute />}>
 
-      </Routes>
+                    <Route element={<DashboardLayout />}>
 
-    </BrowserRouter>
-  );
+
+                        {/* ==================================================
+                            DASHBOARD
+                            All authenticated users
+                        ================================================== */}
+
+                        <Route
+                            path="/dashboard"
+                            element={<Dashboard />}
+                        />
+
+
+                        {/* ==================================================
+                            HOSPITAL ADMIN + CAMPAIGN MANAGER
+                        ================================================== */}
+
+                        <Route element={
+                            <RoleRoute
+                                allowedRoles={[
+                                    "HOSPITAL_ADMIN",
+                                    "CAMPAIGN_MANAGER"
+                                ]}
+                            />
+                        }>
+
+                            <Route
+                                path="/patients"
+                                element={<Patients />}
+                            />
+
+                            <Route
+                                path="/campaigns"
+                                element={<Campaigns />}
+                            />
+
+                            <Route
+                                path="/eligibility"
+                                element={<Eligibility />}
+                            />
+
+                            <Route
+                                path="/outreach"
+                                element={<Outreach />}
+                            />
+
+                        </Route>
+
+
+                        {/* ==================================================
+                            CLINICAL REVIEWER + HOSPITAL ADMIN
+                        ================================================== */}
+
+                        <Route element={
+    <RoleRoute
+        allowedRoles={[
+            "HOSPITAL_ADMIN",
+            "CAMPAIGN_MANAGER",
+            "CLINICAL_REVIEWER"
+        ]}
+    />
+}>
+    <Route
+        path="/queue"
+        element={<Queue />}
+    />
+</Route>
+
+                        {/* ==================================================
+                            DOCUMENTATION
+                            All authenticated users
+                        ================================================== */}
+
+                        <Route
+                            path="/documentation"
+                            element={<Documentation />}
+                        />
+
+
+                        {/* ==================================================
+                            ADMIN
+                            HOSPITAL ADMIN ONLY
+                        ================================================== */}
+
+                        <Route element={
+                            <RoleRoute
+                                allowedRoles={[
+                                    "HOSPITAL_ADMIN"
+                                ]}
+                            />
+                        }>
+
+                            <Route
+                                path="/admin"
+                                element={<Admin />}
+                            />
+
+                        </Route>
+
+
+                        {/* ==================================================
+                            AI TEST
+                            Currently available to all authenticated users
+                        ================================================== */}
+
+                        <Route
+                            path="/ai-test"
+                            element={<AITest />}
+                        />
+
+
+                    </Route>
+
+                </Route>
+
+            </Routes>
+
+        </BrowserRouter>
+    );
 }
 
 export default App;
