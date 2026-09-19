@@ -3,7 +3,8 @@ const express = require("express");
 const {
     createPatient,
     getPatients,
-    checkPatientEligibility
+    checkPatientEligibility,
+    updateClinicalData
 } = require("../controllers/patientController");
 
 const protect = require("../middleware/authMiddleware");
@@ -38,6 +39,17 @@ router.get(
         "CLINICAL_REVIEWER"
     ),
     checkPatientEligibility
+);
+
+router.put(
+    "/:patientId/clinical",
+    protect,
+    authorize(
+        "HOSPITAL_ADMIN",
+        "CAMPAIGN_MANAGER",
+        "CLINICAL_REVIEWER"
+    ),
+    updateClinicalData
 );
 
 module.exports = router;

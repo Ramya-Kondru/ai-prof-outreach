@@ -2,6 +2,15 @@ const Conversation = require("../models/Conversation");
 const Outreach = require("../models/Outreach");
 const Campaign = require("../models/Campaign");
 
+const {
+    createCommunication
+} = require("../services/ehrService");
+
+const {
+    performClinicalTriage
+} = require("../services/clinicalTriageService");
+
+
 // ======================================================
 // AI CONVERSATION REPLY
 // ======================================================
@@ -14,34 +23,46 @@ const generateConversationReply = async ({
 
     // --------------------------------------------------
     // TEMPORARY AI LOGIC
-    // Replace this with your actual AI API/service
+    // Replace with actual AI API/service later
     // --------------------------------------------------
 
-    const message = patientMessage.toLowerCase();
+    const message =
+        patientMessage.toLowerCase();
+
 
     if (
         message.includes("yes") ||
         message.includes("okay") ||
         message.includes("sure")
     ) {
+
         return `Thank you for confirming. We are glad to hear from you regarding the ${campaignName || "follow-up"} program. Our team will assist you with the next steps.`;
+
     }
+
 
     if (
         message.includes("no") ||
         message.includes("not interested")
     ) {
+
         return `Thank you for letting us know. We have recorded your response. If you need any assistance in the future, please feel free to contact the hospital.`;
+
     }
+
 
     if (
         message.includes("appointment") ||
         message.includes("doctor")
     ) {
+
         return `We understand that you would like assistance with your appointment. Our hospital team can help you with scheduling and further information.`;
+
     }
 
+
     return `Thank you for your message. We have received your response regarding the ${campaignName || "follow-up"} program. Our team will assist you further.`;
+
 };
 
 
@@ -66,8 +87,10 @@ const createConversation = async (req, res) => {
         if (!outreachId || !patientId) {
 
             return res.status(400).json({
+
                 message:
                     "outreachId and patientId are required"
+
             });
 
         }
@@ -91,8 +114,10 @@ const createConversation = async (req, res) => {
         if (!outreach) {
 
             return res.status(404).json({
+
                 message:
                     "Outreach not found"
+
             });
 
         }
@@ -104,7 +129,12 @@ const createConversation = async (req, res) => {
 
         const existingConversation =
             await Conversation.findOne({
-                outreachId
+
+                outreachId,
+
+                hospitalId:
+                    req.user.hospitalId
+
             });
 
 
@@ -124,21 +154,20 @@ const createConversation = async (req, res) => {
 
 
         // --------------------------------------------------
-        // AI starts conversation
-        // using outreach.message
+        // AI initial message
         // --------------------------------------------------
 
         const initialMessages = [];
 
 
-        if (outreach.message) {
+        if (outreach.aiMessage) {
 
             initialMessages.push({
 
                 sender: "AI",
 
                 message:
-                    outreach.message,
+                    outreach.aiMessage,
 
                 sentAt:
                     new Date()
@@ -170,7 +199,43 @@ const createConversation = async (req, res) => {
             });
 
 
-        res.status(201).json({
+        // ==================================================
+        // DOCUMENT INITIAL AI MESSAGE IN MOCK EHR
+        // ==================================================
+
+        if (outreach.aiMessage) {
+
+            await createCommunication({
+
+                hospitalId:
+                    req.user.hospitalId,
+
+                patientId,
+
+                outreachId,
+
+                conversationId:
+                    conversation._id,
+
+                sender: "AI",
+
+                message:
+                    outreach.aiMessage,
+
+                direction: "OUTBOUND",
+
+                channel: "CHAT"
+
+            });
+
+        }
+
+
+        // --------------------------------------------------
+        // Return conversation
+        // --------------------------------------------------
+
+        return res.status(201).json({
 
             message:
                 "Conversation created successfully",
@@ -187,9 +252,11 @@ const createConversation = async (req, res) => {
             error.message
         );
 
-        res.status(500).json({
+        return res.status(500).json({
+
             message:
                 "Server error"
+
         });
 
     }
@@ -223,7 +290,7 @@ const getConversation = async (req, res) => {
 
                 .populate(
                     "outreachId",
-                    "status outcome attemptNumber message"
+                    "status outcome attemptNumber aiMessage"
                 );
 
 
@@ -239,7 +306,7 @@ const getConversation = async (req, res) => {
         }
 
 
-        res.json({
+        return res.json({
 
             conversation
 
@@ -253,7 +320,7 @@ const getConversation = async (req, res) => {
             error.message
         );
 
-        res.status(500).json({
+        return res.status(500).json({
 
             message:
                 "Server error"
@@ -296,7 +363,7 @@ const addMessage = async (req, res) => {
 
 
         // --------------------------------------------------
-        // Only these senders are allowed
+        // Allowed senders
         // --------------------------------------------------
 
         const allowedSenders = [
@@ -313,6 +380,26 @@ const addMessage = async (req, res) => {
 
                 message:
                     "Invalid sender"
+
+            });
+
+        }
+
+
+        // --------------------------------------------------
+        // Clean message
+        // --------------------------------------------------
+
+        const cleanMessage =
+            message.trim();
+
+
+        if (!cleanMessage) {
+
+            return res.status(400).json({
+
+                message:
+                    "Message cannot be empty"
 
             });
 
@@ -366,16 +453,16 @@ const addMessage = async (req, res) => {
         }
 
 
-        // --------------------------------------------------
-        // Add PATIENT / HOSPITAL message
-        // --------------------------------------------------
+        // ==================================================
+        // ADD PATIENT / HOSPITAL MESSAGE
+        // ==================================================
 
         conversation.messages.push({
 
             sender,
 
             message:
-                message.trim(),
+                cleanMessage,
 
             sentAt:
                 new Date()
@@ -384,6 +471,47 @@ const addMessage = async (req, res) => {
 
 
         await conversation.save();
+
+
+        // ==================================================
+        // DOCUMENT MESSAGE IN MOCK EHR
+        // ==================================================
+
+        await createCommunication({
+
+            hospitalId:
+                req.user.hospitalId,
+
+            patientId:
+                conversation.patientId,
+
+            outreachId:
+                conversation.outreachId,
+
+            conversationId:
+                conversation._id,
+
+            sender,
+
+            message:
+                cleanMessage,
+
+            direction:
+                sender === "PATIENT"
+                    ? "INBOUND"
+                    : "OUTBOUND",
+
+            channel:
+                "CHAT"
+
+        });
+
+
+        // ==================================================
+        // STORE TRIAGE RESULT
+        // ==================================================
+
+        let triageResult = null;
 
 
         // ==================================================
@@ -452,7 +580,7 @@ const addMessage = async (req, res) => {
 
 
             // --------------------------------------------------
-            // Generate AI response
+            // Generate AI reply
             // --------------------------------------------------
 
             const aiReply =
@@ -464,14 +592,14 @@ const addMessage = async (req, res) => {
                     conversationHistory,
 
                     patientMessage:
-                        message
+                        cleanMessage
 
                 });
 
 
-            // --------------------------------------------------
-            // Save AI reply
-            // --------------------------------------------------
+            // ==================================================
+            // SAVE AI REPLY TO CONVERSATION
+            // ==================================================
 
             conversation.messages.push({
 
@@ -488,19 +616,113 @@ const addMessage = async (req, res) => {
 
             await conversation.save();
 
+
+            // ==================================================
+            // DOCUMENT AI REPLY IN MOCK EHR
+            // ==================================================
+
+            await createCommunication({
+
+                hospitalId:
+                    req.user.hospitalId,
+
+                patientId:
+                    conversation.patientId,
+
+                outreachId:
+                    conversation.outreachId,
+
+                conversationId:
+                    conversation._id,
+
+                sender: "AI",
+
+                message:
+                    aiReply,
+
+                direction:
+                    "OUTBOUND",
+
+                channel:
+                    "CHAT"
+
+            });
+
+
+            // ==================================================
+            // CLINICAL TRIAGE
+            // ==================================================
+
+            triageResult =
+                await performClinicalTriage({
+
+                    hospitalId:
+                        req.user.hospitalId,
+
+                    patientId:
+                        conversation.patientId,
+
+                    outreachId:
+                        conversation.outreachId,
+
+                    conversationId:
+                        conversation._id,
+
+                    patientMessage:
+                        cleanMessage
+
+                });
+
+
+            // ==================================================
+            // LOG TRIAGE RESULT
+            // ==================================================
+
+            console.log(
+                "Clinical triage result:",
+                triageResult.triageResult
+            );
+
+
+            if (
+                triageResult.escalation
+            ) {
+
+                console.log(
+                    "Escalation created:",
+                    triageResult.escalation._id
+                );
+
+            }
+
+
+            if (
+                triageResult.followUp
+            ) {
+
+                console.log(
+                    "Follow-up created:",
+                    triageResult.followUp._id
+                );
+
+            }
+
         }
 
 
-        // --------------------------------------------------
-        // Return updated conversation
-        // --------------------------------------------------
+        // ==================================================
+        // RETURN UPDATED CONVERSATION + TRIAGE
+        // ==================================================
 
-        res.json({
+        return res.json({
 
             message:
                 "Message added successfully",
 
-            conversation
+            conversation,
+
+            triage:
+                triageResult
 
         });
 
@@ -512,7 +734,7 @@ const addMessage = async (req, res) => {
             error.message
         );
 
-        res.status(500).json({
+        return res.status(500).json({
 
             message:
                 "Server error"
@@ -557,6 +779,25 @@ const closeConversation = async (req, res) => {
 
 
         // --------------------------------------------------
+        // Check if already resolved
+        // --------------------------------------------------
+
+        if (
+            conversation.status ===
+            "RESOLVED"
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Conversation is already resolved"
+
+            });
+
+        }
+
+
+        // --------------------------------------------------
         // Change OPEN → RESOLVED
         // --------------------------------------------------
 
@@ -567,7 +808,44 @@ const closeConversation = async (req, res) => {
         await conversation.save();
 
 
-        res.json({
+        // ==================================================
+        // DOCUMENT RESOLUTION IN MOCK EHR
+        // ==================================================
+
+        await createCommunication({
+
+            hospitalId:
+                req.user.hospitalId,
+
+            patientId:
+                conversation.patientId,
+
+            outreachId:
+                conversation.outreachId,
+
+            conversationId:
+                conversation._id,
+
+            sender:
+                "HOSPITAL",
+
+            message:
+                "Conversation resolved by hospital.",
+
+            direction:
+                "OUTBOUND",
+
+            channel:
+                "CHAT"
+
+        });
+
+
+        // --------------------------------------------------
+        // Return response
+        // --------------------------------------------------
+
+        return res.json({
 
             message:
                 "Conversation resolved successfully",
@@ -584,7 +862,7 @@ const closeConversation = async (req, res) => {
             error.message
         );
 
-        res.status(500).json({
+        return res.status(500).json({
 
             message:
                 "Server error"

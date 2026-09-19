@@ -12,7 +12,8 @@ const createPatient = async (req, res) => {
             dischargeDate,
             dischargeDisposition,
             followUpRequired,
-            communicationEligible
+            communicationEligible,
+            clinicalData
         } = req.body;
 
         if (!patientId || !name || !phone || !dischargeDate) {
@@ -42,7 +43,8 @@ const createPatient = async (req, res) => {
             dischargeDate,
             dischargeDisposition,
             followUpRequired,
-            communicationEligible
+            communicationEligible,
+            clinicalData
         });
 
         res.status(201).json({
@@ -73,6 +75,63 @@ const getPatients = async (req, res) => {
 
     } catch (error) {
         console.error("Get patients error:", error.message);
+
+        res.status(500).json({
+            message: "Server error"
+        });
+    }
+};
+const updateClinicalData = async (req, res) => {
+    try {
+
+        const patient = await Patient.findOne({
+            _id: req.params.patientId,
+            hospitalId: req.user.hospitalId
+        });
+
+        if (!patient) {
+            return res.status(404).json({
+                message: "Patient not found"
+            });
+        }
+
+
+        const {
+            diagnosis,
+            conditions,
+            medications,
+            allergies,
+            symptoms,
+            vitalSigns,
+            clinicalNotes
+        } = req.body;
+
+
+        patient.clinicalData = {
+            diagnosis,
+            conditions: conditions || [],
+            medications: medications || [],
+            allergies: allergies || [],
+            symptoms: symptoms || [],
+            vitalSigns: vitalSigns || {},
+            clinicalNotes
+        };
+
+
+        await patient.save();
+
+
+        res.json({
+            message: "Clinical data updated successfully",
+            patient
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Update clinical data error:",
+            error.message
+        );
 
         res.status(500).json({
             message: "Server error"
@@ -128,5 +187,6 @@ const checkPatientEligibility = async (req, res) => {
 module.exports = {
     createPatient,
     getPatients,
-    checkPatientEligibility
+    checkPatientEligibility,
+    updateClinicalData
 };

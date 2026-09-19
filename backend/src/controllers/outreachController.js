@@ -4,9 +4,6 @@ const Outreach = require("../models/Outreach");
 
 const { checkEligibility } = require("../services/eligibilityService");
 const { createOutreach } = require("../services/outreachService");
-const {
-    generateOutreachMessage
-} = require("../services/aiService");
 
 
 // ======================================================
@@ -24,6 +21,10 @@ const createOutreachForPatient = async (req, res) => {
         } = req.body;
 
 
+        // ------------------------------------------------
+        // Validate input
+        // ------------------------------------------------
+
         if (!patientId || !campaignId) {
 
             return res.status(400).json({
@@ -38,15 +39,20 @@ const createOutreachForPatient = async (req, res) => {
         // ------------------------------------------------
 
         const patient = await Patient.findOne({
+
             _id: patientId,
-            hospitalId: req.user.hospitalId
+
+            hospitalId:
+                req.user.hospitalId
+
         });
 
 
         if (!patient) {
 
             return res.status(404).json({
-                message: "Patient not found"
+                message:
+                    "Patient not found"
             });
         }
 
@@ -56,15 +62,20 @@ const createOutreachForPatient = async (req, res) => {
         // ------------------------------------------------
 
         const campaign = await Campaign.findOne({
+
             _id: campaignId,
-            hospitalId: req.user.hospitalId
+
+            hospitalId:
+                req.user.hospitalId
+
         });
 
 
         if (!campaign) {
 
             return res.status(404).json({
-                message: "Campaign not found"
+                message:
+                    "Campaign not found"
             });
         }
 
@@ -83,10 +94,13 @@ const createOutreachForPatient = async (req, res) => {
         if (!eligibility.eligible) {
 
             return res.status(400).json({
+
                 message:
                     "Patient is not eligible for outreach",
+
                 reason:
                     eligibility.reason
+
             });
         }
 
@@ -114,27 +128,28 @@ const createOutreachForPatient = async (req, res) => {
             });
 
 
-        res.status(201).json({
+        const outreach =
+            result.outreach;
+
+        const conversation =
+            result.conversation;
+
+
+        // ------------------------------------------------
+        // SUCCESS RESPONSE
+        // ------------------------------------------------
+
+        return res.status(201).json({
 
             message:
                 "Outreach queued successfully",
 
-            outreach:
-                result.outreach,
+            outreach,
 
-            conversation:
-                result.conversation
+            conversation
 
         });
 
-        res.status(201).json({
-
-            message:
-                "Outreach queued successfully",
-
-            outreach
-
-        });
 
     } catch (error) {
 
@@ -143,9 +158,22 @@ const createOutreachForPatient = async (req, res) => {
             error.message
         );
 
-        res.status(500).json({
-            message: "Server error"
+
+        // Prevent sending another response
+        // if Express has already sent one
+
+        if (res.headersSent) {
+            return;
+        }
+
+
+        return res.status(500).json({
+
+            message:
+                "Server error"
+
         });
+
     }
 };
 
@@ -166,20 +194,23 @@ const getOutreach = async (req, res) => {
                     req.user.hospitalId
 
             })
+
                 .populate(
                     "patientId",
                     "patientId name phone"
                 )
+
                 .populate(
                     "campaignId",
                     "name status priority"
                 )
+
                 .sort({
                     createdAt: -1
                 });
 
 
-        res.json({
+        return res.json({
 
             count:
                 outreach.length,
@@ -188,6 +219,7 @@ const getOutreach = async (req, res) => {
 
         });
 
+
     } catch (error) {
 
         console.error(
@@ -195,9 +227,19 @@ const getOutreach = async (req, res) => {
             error.message
         );
 
-        res.status(500).json({
-            message: "Server error"
+
+        if (res.headersSent) {
+            return;
+        }
+
+
+        return res.status(500).json({
+
+            message:
+                "Server error"
+
         });
+
     }
 };
 
@@ -250,6 +292,10 @@ const completeOutreach = async (req, res) => {
         ];
 
 
+        // ------------------------------------------------
+        // Validate status
+        // ------------------------------------------------
+
         if (
             !status ||
             !allowedStatuses.includes(status)
@@ -263,6 +309,10 @@ const completeOutreach = async (req, res) => {
             });
         }
 
+
+        // ------------------------------------------------
+        // Validate outcome
+        // ------------------------------------------------
 
         if (
             outcome &&
@@ -310,10 +360,13 @@ const completeOutreach = async (req, res) => {
         // ------------------------------------------------
 
         if (
+
             outreach.status !==
-            "IN_PROGRESS" &&
+                "IN_PROGRESS" &&
+
             outreach.status !==
-            "MANUAL_FOLLOW_UP"
+                "MANUAL_FOLLOW_UP"
+
         ) {
 
             return res.status(400).json({
@@ -393,9 +446,12 @@ const completeOutreach = async (req, res) => {
         // ==================================================
 
         if (
+
             status === "FAILED" &&
+
             outcome ===
-            "CALLBACK_REQUESTED"
+                "CALLBACK_REQUESTED"
+
         ) {
 
             if (!callbackAt) {
@@ -467,7 +523,6 @@ const completeOutreach = async (req, res) => {
                 15;
 
 
-
             // ------------------------------------------------
             // Retry available
             // ------------------------------------------------
@@ -495,10 +550,13 @@ const completeOutreach = async (req, res) => {
 
                 outreach.retryAt =
                     new Date(
+
                         Date.now() +
+
                         delayMinutes *
                         60 *
                         1000
+
                     );
 
 
@@ -564,6 +622,7 @@ const completeOutreach = async (req, res) => {
             outreach.status =
                 "CANCELLED";
 
+
             outreach.completedAt =
                 new Date();
 
@@ -581,6 +640,7 @@ const completeOutreach = async (req, res) => {
             });
         }
 
+
     } catch (error) {
 
         console.error(
@@ -588,8 +648,17 @@ const completeOutreach = async (req, res) => {
             error.message
         );
 
-        res.status(500).json({
-            message: "Server error"
+
+        if (res.headersSent) {
+            return;
+        }
+
+
+        return res.status(500).json({
+
+            message:
+                "Server error"
+
         });
     }
 };

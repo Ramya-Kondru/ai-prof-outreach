@@ -12,7 +12,7 @@ import Queue from "./pages/Queue/Queue";
 import Admin from "./pages/Admin/Admin";
 import Home from "./pages/Home/Home";
 import AITest from "./pages/AITest/AITest";
-
+import Documentation from "./pages/Documentation/Documentation";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -82,6 +82,11 @@ function App() {
               path="/ai-test"
               element={<AITest />}
             />
+            <Route
+    path="/documentation"
+    element={<Documentation />}
+/>
+
 
           </Route>
 

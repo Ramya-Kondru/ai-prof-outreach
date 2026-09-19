@@ -117,3 +117,65 @@
 .create-button:hover {
   background: #1d4ed8;
 }
+
+/* ======================================================
+   FORM SECTION
+   ====================================================== */
+
+.form-section-title {
+  margin-top: 22px;
+  margin-bottom: 15px;
+
+  padding-bottom: 8px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  color: #374151;
+}
+
+
+/* ======================================================
+   TEXTAREA
+   ====================================================== */
+
+.form-group textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 6px;
+
+  font-size: 14px;
+
+  font-family: inherit;
+
+  resize: vertical;
+}
+
+.form-group textarea:focus {
+  outline: none;
+
+  border-color: #2563eb;
+}
+
+
+/* ======================================================
+   HELP TEXT
+   ====================================================== */
+
+.form-group small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #9ca3af;
+
+  font-size: 11px;
+}

@@ -9,6 +9,10 @@ const patientSchema = new mongoose.Schema(
             index: true
         },
 
+        // ==========================================
+        // BASIC PATIENT INFORMATION
+        // ==========================================
+
         patientId: {
             type: String,
             required: true,
@@ -30,6 +34,10 @@ const patientSchema = new mongoose.Schema(
         dateOfBirth: {
             type: Date
         },
+
+        // ==========================================
+        // DISCHARGE INFORMATION
+        // ==========================================
 
         dischargeDate: {
             type: Date,
@@ -55,6 +63,65 @@ const patientSchema = new mongoose.Schema(
         communicationEligible: {
             type: Boolean,
             default: true
+        },
+
+        // ==========================================
+        // CLINICAL INFORMATION
+        // ==========================================
+
+        clinicalData: {
+            diagnosis: {
+                type: String,
+                trim: true
+            },
+
+            conditions: {
+                type: [String],
+                default: []
+            },
+
+            medications: {
+                type: [String],
+                default: []
+            },
+
+            allergies: {
+                type: [String],
+                default: []
+            },
+
+            symptoms: {
+                type: [String],
+                default: []
+            },
+
+            vitalSigns: {
+                temperature: {
+                    type: Number
+                },
+
+                heartRate: {
+                    type: Number
+                },
+
+                bloodPressure: {
+                    type: String,
+                    trim: true
+                },
+
+                respiratoryRate: {
+                    type: Number
+                },
+
+                oxygenSaturation: {
+                    type: Number
+                }
+            },
+
+            clinicalNotes: {
+                type: String,
+                trim: true
+            }
         }
     },
     {
@@ -62,9 +129,23 @@ const patientSchema = new mongoose.Schema(
     }
 );
 
+
+// ==========================================
+// UNIQUE PATIENT ID PER HOSPITAL
+// ==========================================
+
 patientSchema.index(
-    { hospitalId: 1, patientId: 1 },
-    { unique: true }
+    {
+        hospitalId: 1,
+        patientId: 1
+    },
+    {
+        unique: true
+    }
 );
 
-module.exports = mongoose.model("Patient", patientSchema);
+
+module.exports = mongoose.model(
+    "Patient",
+    patientSchema
+);

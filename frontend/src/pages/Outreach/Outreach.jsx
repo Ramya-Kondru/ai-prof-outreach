@@ -23,7 +23,6 @@ function Outreach() {
   // Used to control the chat scroll position
   const messagesContainerRef = useRef(null);
 
-
   // ======================================================
   // HOSPITAL MESSAGE
   // ======================================================
@@ -31,7 +30,6 @@ function Outreach() {
   const [newMessage, setNewMessage] = useState("");
   const [sendingMessage, setSendingMessage] =
     useState(false);
-
 
   // ======================================================
   // PATIENT SIMULATOR
@@ -43,6 +41,15 @@ function Outreach() {
   const [sendingPatientMessage, setSendingPatientMessage] =
     useState(false);
 
+  // ======================================================
+  // CLINICAL TRIAGE
+  // ======================================================
+
+  const [triageAssessment, setTriageAssessment] =
+    useState(null);
+
+  const [triageLoading, setTriageLoading] =
+    useState(false);
 
   // ======================================================
   // FETCH OUTREACH
@@ -71,7 +78,6 @@ function Outreach() {
     }
   };
 
-
   // ======================================================
   // INITIAL FETCH
   // ======================================================
@@ -79,7 +85,6 @@ function Outreach() {
   useEffect(() => {
     fetchOutreach();
   }, []);
-
 
   // ======================================================
   // SHOW CONVERSATION FROM TOP WHEN OPENED
@@ -93,7 +98,6 @@ function Outreach() {
       messagesContainerRef.current.scrollTop = 0;
     }
   }, [selectedConversation?._id]);
-
 
   // ======================================================
   // UPDATE OUTREACH
@@ -135,7 +139,6 @@ function Outreach() {
     }
   };
 
-
   // ======================================================
   // OPEN / CREATE CONVERSATION
   // ======================================================
@@ -144,13 +147,15 @@ function Outreach() {
     try {
       setConversationLoading(true);
 
+      // Clear previous patient's triage result
+      setTriageAssessment(null);
+
       setSelectedPatientName(
         item.patientId?.name ||
         "Patient"
       );
 
       let conversation;
-
 
       // --------------------------------------------------
       // GET EXISTING CONVERSATION
@@ -193,7 +198,6 @@ function Outreach() {
         }
       }
 
-
       // --------------------------------------------------
       // OPEN CONVERSATION
       // --------------------------------------------------
@@ -219,7 +223,6 @@ function Outreach() {
     }
   };
 
-
   // ======================================================
   // SEND HOSPITAL MESSAGE
   // ======================================================
@@ -244,13 +247,11 @@ function Outreach() {
         }
       );
 
-
       // Update conversation with
       // newly added hospital message
       setSelectedConversation(
         response.data.conversation
       );
-
 
       setNewMessage("");
 
@@ -270,7 +271,6 @@ function Outreach() {
       setSendingMessage(false);
     }
   };
-
 
   // ======================================================
   // SEND PATIENT MESSAGE
@@ -297,12 +297,10 @@ function Outreach() {
         }
       );
 
-
       console.log(
         "Patient message response:",
         response.data
       );
-
 
       // Backend returns:
       //
@@ -316,7 +314,6 @@ function Outreach() {
       setSelectedConversation(
         response.data.conversation
       );
-
 
       setPatientMessage("");
 
@@ -338,7 +335,6 @@ function Outreach() {
     }
   };
 
-
   // ======================================================
   // RESOLVE CONVERSATION
   // ======================================================
@@ -354,7 +350,6 @@ function Outreach() {
       const response = await api.patch(
         `/conversations/${selectedConversation._id}/close`
       );
-
 
       // Backend changes:
       //
@@ -380,7 +375,6 @@ function Outreach() {
     }
   };
 
-
   // ======================================================
   // CLOSE MODAL
   // ======================================================
@@ -394,8 +388,59 @@ function Outreach() {
     setNewMessage("");
 
     setPatientMessage("");
+
+    setTriageAssessment(null);
   };
 
+  // ======================================================
+  // RUN CLINICAL TRIAGE
+  // ======================================================
+
+  const runClinicalTriage = async () => {
+
+    if (!selectedConversation) {
+      return;
+    }
+
+    try {
+
+      setTriageLoading(true);
+
+      const response = await api.post(
+        `/triage/${selectedConversation._id}`
+      );
+
+      console.log(
+        "Clinical Triage:",
+        response.data
+      );
+
+      const assessment =
+        response.data.assessment;
+
+      // Store result in React state
+      // instead of showing an alert
+      setTriageAssessment(
+        assessment
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Clinical triage error:",
+        error
+      );
+
+      alert(
+        error.response?.data?.message ||
+        "Failed to run clinical triage"
+      );
+
+    } finally {
+
+      setTriageLoading(false);
+    }
+  };
 
   // ======================================================
   // RENDER
@@ -421,7 +466,6 @@ function Outreach() {
         </div>
 
       </div>
-
 
       {/* ==================================================
           OUTREACH TABLE
@@ -459,7 +503,6 @@ function Outreach() {
 
             </div>
 
-
             {/* OUTREACH RECORDS */}
 
             {outreach.map((item) => (
@@ -481,7 +524,6 @@ function Outreach() {
                       "-"}
                   </span>
 
-
                   {/* CAMPAIGN */}
 
                   <span>
@@ -489,7 +531,6 @@ function Outreach() {
                       item.campaignId ||
                       "-"}
                   </span>
-
 
                   {/* STATUS */}
 
@@ -503,7 +544,6 @@ function Outreach() {
 
                   </span>
 
-
                   {/* SCHEDULED */}
 
                   <span>
@@ -516,13 +556,11 @@ function Outreach() {
 
                   </span>
 
-
                   {/* ATTEMPT */}
 
                   <span>
                     {item.attemptNumber ?? "-"}
                   </span>
-
 
                   {/* ACTION */}
 
@@ -550,7 +588,6 @@ function Outreach() {
                           Complete
                         </button>
 
-
                         <button
                           className="failed-button"
                           disabled={
@@ -572,7 +609,6 @@ function Outreach() {
 
                     )}
 
-
                     {item.status ===
                       "QUEUED" && (
 
@@ -581,7 +617,6 @@ function Outreach() {
                       </span>
 
                     )}
-
 
                     {item.status ===
                       "COMPLETED" && (
@@ -592,7 +627,6 @@ function Outreach() {
 
                     )}
 
-
                     {item.status ===
                       "FAILED" && (
 
@@ -601,7 +635,6 @@ function Outreach() {
                       </span>
 
                     )}
-
 
                     {item.status ===
                       "MANUAL_FOLLOW_UP" && (
@@ -624,7 +657,6 @@ function Outreach() {
                   </span>
 
                 </div>
-
 
                 {/* CONVERSATION BUTTON */}
 
@@ -658,7 +690,6 @@ function Outreach() {
 
       </div>
 
-
       {/* ==================================================
           CONVERSATION MODAL
           ================================================== */}
@@ -668,7 +699,6 @@ function Outreach() {
         <div className="conversation-overlay">
 
           <div className="conversation-modal">
-
 
             {/* ==================================================
                 HEADER
@@ -688,7 +718,6 @@ function Outreach() {
 
               </div>
 
-
               <button
                 className="conversation-close"
                 onClick={
@@ -700,7 +729,6 @@ function Outreach() {
 
             </div>
 
-
             {/* ==================================================
                 MESSAGES
                 ================================================== */}
@@ -711,7 +739,7 @@ function Outreach() {
             >
 
               {selectedConversation.messages?.length ===
-              0 ? (
+                0 ? (
 
                 <p className="empty-conversation">
                   No messages yet.
@@ -743,7 +771,6 @@ function Outreach() {
 
                       </div>
 
-
                       {/* MESSAGE */}
 
                       <div className="message-text">
@@ -751,7 +778,6 @@ function Outreach() {
                         {msg.message}
 
                       </div>
-
 
                       {/* TIME */}
 
@@ -774,7 +800,6 @@ function Outreach() {
 
             </div>
 
-
             {/* ==================================================
                 PATIENT SIMULATOR
                 ================================================== */}
@@ -788,7 +813,6 @@ function Outreach() {
                   Patient Simulator
                 </div>
 
-
                 <textarea
                   value={patientMessage}
                   onChange={(e) =>
@@ -799,7 +823,6 @@ function Outreach() {
                   placeholder="Type patient's response..."
                   rows="2"
                 />
-
 
                 <button
                   className="patient-response-button"
@@ -822,7 +845,6 @@ function Outreach() {
 
             )}
 
-
             {/* ==================================================
                 HOSPITAL REPLY
                 ================================================== */}
@@ -836,7 +858,6 @@ function Outreach() {
                   Hospital Reply
                 </div>
 
-
                 <textarea
                   value={newMessage}
                   onChange={(e) =>
@@ -847,7 +868,6 @@ function Outreach() {
                   placeholder="Reply to patient..."
                   rows="3"
                 />
-
 
                 <button
                   className="send-message-button"
@@ -868,6 +888,89 @@ function Outreach() {
 
             )}
 
+            {/* ==================================================
+                CLINICAL TRIAGE
+                ================================================== */}
+
+            <div className="triage-section">
+
+              <button
+                className="triage-button"
+                onClick={
+                  runClinicalTriage
+                }
+                disabled={
+                  triageLoading
+                }
+              >
+
+                {triageLoading
+                  ? "Running Triage..."
+                  : "Run Clinical Triage"}
+
+              </button>
+
+
+              {/* TRIAGE RESULT */}
+
+              {triageAssessment && (
+
+                <div className="triage-result">
+
+                  <div className="triage-result-header">
+                    Clinical Triage Result
+                  </div>
+
+
+                  <div className="triage-result-row">
+
+                    <span>
+                      Urgency
+                    </span>
+
+                    <strong
+                      className={`triage-urgency ${
+                        triageAssessment.urgency?.toLowerCase()
+                      }`}
+                    >
+                      {triageAssessment.urgency}
+                    </strong>
+
+                  </div>
+
+
+                  <div className="triage-result-row">
+
+                    <span>
+                      Human Review
+                    </span>
+
+                    <strong>
+                      {triageAssessment.requiresHumanReview
+                        ? "YES"
+                        : "NO"}
+                    </strong>
+
+                  </div>
+
+
+                  <div className="triage-reasoning">
+
+                    <div>
+                      Reasoning
+                    </div>
+
+                    <p>
+                      {triageAssessment.reasoning}
+                    </p>
+
+                  </div>
+
+                </div>
+
+              )}
+
+            </div>
 
             {/* ==================================================
                 FOOTER
@@ -884,7 +987,6 @@ function Outreach() {
                 </strong>
 
               </span>
-
 
               {selectedConversation.status ===
                 "OPEN" && (

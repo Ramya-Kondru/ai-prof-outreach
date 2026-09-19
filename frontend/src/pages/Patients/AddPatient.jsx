@@ -3,44 +3,197 @@ import api from "../../services/api";
 import "./AddPatient.css";
 
 function AddPatient({ onClose, onPatientAdded }) {
+  // ======================================================
+  // BASIC PATIENT INFORMATION
+  // ======================================================
+
   const [patientId, setPatientId] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [dischargeDate, setDischargeDate] = useState("");
-  const [dischargeDisposition, setDischargeDisposition] = useState("");
-  const [followUpRequired, setFollowUpRequired] = useState(true);
-  const [communicationEligible, setCommunicationEligible] = useState(true);
+  const [dischargeDisposition, setDischargeDisposition] =
+    useState("");
+
+  const [followUpRequired, setFollowUpRequired] =
+    useState(true);
+
+  const [communicationEligible, setCommunicationEligible] =
+    useState(true);
+
+
+  // ======================================================
+  // CLINICAL INFORMATION
+  // ======================================================
+
+  const [diagnosis, setDiagnosis] = useState("");
+  const [conditions, setConditions] = useState("");
+  const [medications, setMedications] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [symptoms, setSymptoms] = useState("");
+
+  // ======================================================
+  // VITAL SIGNS
+  // ======================================================
+
+  const [temperature, setTemperature] = useState("");
+  const [heartRate, setHeartRate] = useState("");
+  const [bloodPressure, setBloodPressure] = useState("");
+  const [respiratoryRate, setRespiratoryRate] =
+    useState("");
+  const [oxygenSaturation, setOxygenSaturation] =
+    useState("");
+
+  // ======================================================
+  // CLINICAL NOTES
+  // ======================================================
+
+  const [clinicalNotes, setClinicalNotes] = useState("");
+
+
+  // ======================================================
+  // SUBMIT
+  // ======================================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const patient = {
+      // --------------------------------------------------
+      // BASIC INFORMATION
+      // --------------------------------------------------
+
       patientId: patientId.trim(),
+
       name: name.trim(),
+
       phone: phone.trim(),
-      dateOfBirth: dateOfBirth || undefined,
+
+      dateOfBirth:
+        dateOfBirth || undefined,
+
       dischargeDate,
-      dischargeDisposition: dischargeDisposition || undefined,
+
+      dischargeDisposition:
+        dischargeDisposition || undefined,
+
       followUpRequired,
+
       communicationEligible,
+
+
+      // --------------------------------------------------
+      // CLINICAL INFORMATION
+      // --------------------------------------------------
+
+      clinicalData: {
+
+        diagnosis:
+          diagnosis.trim(),
+
+        conditions:
+          conditions
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean),
+
+        medications:
+          medications
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean),
+
+        allergies:
+          allergies
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean),
+
+        symptoms:
+          symptoms
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean),
+
+
+        // ------------------------------------------------
+        // VITAL SIGNS
+        // ------------------------------------------------
+
+        vitalSigns: {
+
+          temperature:
+            temperature
+              ? Number(temperature)
+              : undefined,
+
+          heartRate:
+            heartRate
+              ? Number(heartRate)
+              : undefined,
+
+          bloodPressure:
+            bloodPressure.trim(),
+
+          respiratoryRate:
+            respiratoryRate
+              ? Number(respiratoryRate)
+              : undefined,
+
+          oxygenSaturation:
+            oxygenSaturation
+              ? Number(oxygenSaturation)
+              : undefined
+        },
+
+
+        // ------------------------------------------------
+        // CLINICAL NOTES
+        // ------------------------------------------------
+
+        clinicalNotes:
+          clinicalNotes.trim()
+      }
     };
 
+
+    // ====================================================
+    // SEND TO BACKEND
+    // ====================================================
+
     try {
-      const response = await api.post("/patients", patient);
 
-      console.log("Patient created:", response.data);
+      const response = await api.post(
+        "/patients",
+        patient
+      );
 
-      alert("Patient added successfully!");
 
+      console.log(
+        "Patient created:",
+        response.data
+      );
+
+
+      alert(
+        "Patient added successfully!"
+      );
+
+
+      // Refresh patient list
       onPatientAdded();
+
+      // Close modal
       onClose();
 
+
     } catch (error) {
+
       console.error(
         "Error creating patient:",
         error
       );
+
 
       alert(
         error.response?.data?.message ||
@@ -49,20 +202,36 @@ function AddPatient({ onClose, onPatientAdded }) {
     }
   };
 
+
+  // ======================================================
+  // RENDER
+  // ======================================================
+
   return (
+
     <div className="patient-modal-overlay">
 
       <div className="patient-modal">
 
+
+        {/* ==================================================
+            HEADER
+            ================================================== */}
+
         <div className="modal-header">
 
           <div>
-            <h2>Add Patient</h2>
+
+            <h2>
+              Add Patient
+            </h2>
 
             <p>
               Add a new patient to the system.
             </p>
+
           </div>
+
 
           <button
             type="button"
@@ -77,11 +246,23 @@ function AddPatient({ onClose, onPatientAdded }) {
 
         <form onSubmit={handleSubmit}>
 
-          {/* Patient ID */}
+
+          {/* ==================================================
+              PATIENT INFORMATION
+              ================================================== */}
+
+          <div className="form-section-title">
+            Patient Information
+          </div>
+
+
+          {/* PATIENT ID */}
 
           <div className="form-group">
 
-            <label>Patient ID</label>
+            <label>
+              Patient ID
+            </label>
 
             <input
               type="text"
@@ -96,11 +277,13 @@ function AddPatient({ onClose, onPatientAdded }) {
           </div>
 
 
-          {/* Name */}
+          {/* NAME */}
 
           <div className="form-group">
 
-            <label>Name</label>
+            <label>
+              Name
+            </label>
 
             <input
               type="text"
@@ -115,11 +298,13 @@ function AddPatient({ onClose, onPatientAdded }) {
           </div>
 
 
-          {/* Phone */}
+          {/* PHONE */}
 
           <div className="form-group">
 
-            <label>Phone</label>
+            <label>
+              Phone
+            </label>
 
             <input
               type="tel"
@@ -134,11 +319,13 @@ function AddPatient({ onClose, onPatientAdded }) {
           </div>
 
 
-          {/* Date of Birth */}
+          {/* DATE OF BIRTH */}
 
           <div className="form-group">
 
-            <label>Date of Birth</label>
+            <label>
+              Date of Birth
+            </label>
 
             <input
               type="date"
@@ -151,11 +338,13 @@ function AddPatient({ onClose, onPatientAdded }) {
           </div>
 
 
-          {/* Discharge Date */}
+          {/* DISCHARGE DATE */}
 
           <div className="form-group">
 
-            <label>Discharge Date</label>
+            <label>
+              Discharge Date
+            </label>
 
             <input
               type="date"
@@ -169,16 +358,20 @@ function AddPatient({ onClose, onPatientAdded }) {
           </div>
 
 
-          {/* Discharge Disposition */}
+          {/* DISCHARGE DISPOSITION */}
 
           <div className="form-group">
 
-            <label>Discharge Disposition</label>
+            <label>
+              Discharge Disposition
+            </label>
 
             <select
               value={dischargeDisposition}
               onChange={(e) =>
-                setDischargeDisposition(e.target.value)
+                setDischargeDisposition(
+                  e.target.value
+                )
               }
             >
 
@@ -207,7 +400,274 @@ function AddPatient({ onClose, onPatientAdded }) {
           </div>
 
 
-          {/* Follow-up Required */}
+          {/* ==================================================
+              CLINICAL INFORMATION
+              ================================================== */}
+
+          <div className="form-section-title">
+            Clinical Information
+          </div>
+
+
+          {/* DIAGNOSIS */}
+
+          <div className="form-group">
+
+            <label>
+              Diagnosis
+            </label>
+
+            <input
+              type="text"
+              placeholder="e.g. Hypertension"
+              value={diagnosis}
+              onChange={(e) =>
+                setDiagnosis(e.target.value)
+              }
+            />
+
+          </div>
+
+
+          {/* CONDITIONS */}
+
+          <div className="form-group">
+
+            <label>
+              Conditions
+            </label>
+
+            <input
+              type="text"
+              placeholder="e.g. Diabetes, Hypertension"
+              value={conditions}
+              onChange={(e) =>
+                setConditions(e.target.value)
+              }
+            />
+
+            <small>
+              Separate multiple conditions with commas.
+            </small>
+
+          </div>
+
+
+          {/* SYMPTOMS */}
+
+          <div className="form-group">
+
+            <label>
+              Symptoms
+            </label>
+
+            <input
+              type="text"
+              placeholder="e.g. dizziness, headache, fatigue"
+              value={symptoms}
+              onChange={(e) =>
+                setSymptoms(e.target.value)
+              }
+            />
+
+            <small>
+              Separate multiple symptoms with commas.
+            </small>
+
+          </div>
+
+
+          {/* MEDICATIONS */}
+
+          <div className="form-group">
+
+            <label>
+              Medications
+            </label>
+
+            <input
+              type="text"
+              placeholder="e.g. Metformin, Aspirin"
+              value={medications}
+              onChange={(e) =>
+                setMedications(e.target.value)
+              }
+            />
+
+            <small>
+              Separate multiple medications with commas.
+            </small>
+
+          </div>
+
+
+          {/* ALLERGIES */}
+
+          <div className="form-group">
+
+            <label>
+              Allergies
+            </label>
+
+            <input
+              type="text"
+              placeholder="e.g. Penicillin, Peanuts"
+              value={allergies}
+              onChange={(e) =>
+                setAllergies(e.target.value)
+              }
+            />
+
+            <small>
+              Separate multiple allergies with commas.
+            </small>
+
+          </div>
+
+
+          {/* ==================================================
+              VITAL SIGNS
+              ================================================== */}
+
+          <div className="form-section-title">
+            Vital Signs
+          </div>
+
+
+          {/* TEMPERATURE */}
+
+          <div className="form-group">
+
+            <label>
+              Temperature
+            </label>
+
+            <input
+              type="number"
+              step="0.1"
+              placeholder="e.g. 98.6"
+              value={temperature}
+              onChange={(e) =>
+                setTemperature(e.target.value)
+              }
+            />
+
+          </div>
+
+
+          {/* HEART RATE */}
+
+          <div className="form-group">
+
+            <label>
+              Heart Rate
+            </label>
+
+            <input
+              type="number"
+              placeholder="e.g. 72"
+              value={heartRate}
+              onChange={(e) =>
+                setHeartRate(e.target.value)
+              }
+            />
+
+          </div>
+
+
+          {/* BLOOD PRESSURE */}
+
+          <div className="form-group">
+
+            <label>
+              Blood Pressure
+            </label>
+
+            <input
+              type="text"
+              placeholder="e.g. 120/80"
+              value={bloodPressure}
+              onChange={(e) =>
+                setBloodPressure(e.target.value)
+              }
+            />
+
+          </div>
+
+
+          {/* RESPIRATORY RATE */}
+
+          <div className="form-group">
+
+            <label>
+              Respiratory Rate
+            </label>
+
+            <input
+              type="number"
+              placeholder="e.g. 16"
+              value={respiratoryRate}
+              onChange={(e) =>
+                setRespiratoryRate(e.target.value)
+              }
+            />
+
+          </div>
+
+
+          {/* OXYGEN SATURATION */}
+
+          <div className="form-group">
+
+            <label>
+              Oxygen Saturation
+            </label>
+
+            <input
+              type="number"
+              step="0.1"
+              placeholder="e.g. 98"
+              value={oxygenSaturation}
+              onChange={(e) =>
+                setOxygenSaturation(e.target.value)
+              }
+            />
+
+          </div>
+
+
+          {/* ==================================================
+              CLINICAL NOTES
+              ================================================== */}
+
+          <div className="form-group">
+
+            <label>
+              Clinical Notes
+            </label>
+
+            <textarea
+              placeholder="Enter relevant clinical notes..."
+              value={clinicalNotes}
+              onChange={(e) =>
+                setClinicalNotes(e.target.value)
+              }
+              rows="4"
+            />
+
+          </div>
+
+
+          {/* ==================================================
+              OUTREACH SETTINGS
+              ================================================== */}
+
+          <div className="form-section-title">
+            Outreach Settings
+          </div>
+
+
+          {/* FOLLOW-UP REQUIRED */}
 
           <div className="checkbox-group">
 
@@ -230,7 +690,7 @@ function AddPatient({ onClose, onPatientAdded }) {
           </div>
 
 
-          {/* Communication Eligible */}
+          {/* COMMUNICATION ELIGIBLE */}
 
           <div className="checkbox-group">
 
@@ -253,7 +713,9 @@ function AddPatient({ onClose, onPatientAdded }) {
           </div>
 
 
-          {/* Actions */}
+          {/* ==================================================
+              ACTIONS
+              ================================================== */}
 
           <div className="modal-actions">
 

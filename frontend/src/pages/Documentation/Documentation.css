@@ -1,0 +1,428 @@
+/* ======================================================
+   DOCUMENTATION PAGE
+   ====================================================== */
+
+.documentation-page {
+    width: 100%;
+}
+
+
+/* ======================================================
+   HEADER
+   ====================================================== */
+
+.documentation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.documentation-header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #111827;
+}
+
+.documentation-header p {
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* ======================================================
+   BUTTONS
+   ====================================================== */
+
+.documentation-refresh {
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    padding: 8px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.documentation-refresh:hover {
+    background: #f9fafb;
+}
+
+.documentation-retry {
+    display: block;
+    margin: 0 auto;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 7px;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+}
+
+
+/* ======================================================
+   SUMMARY
+   ====================================================== */
+
+.documentation-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.summary-card span {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.summary-card strong {
+    display: block;
+    font-size: 22px;
+    color: #111827;
+}
+
+
+/* ======================================================
+   CARD
+   ====================================================== */
+
+.documentation-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+
+/* ======================================================
+   SECTION HEADER
+   ====================================================== */
+
+.documentation-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 16px;
+}
+
+.documentation-section-header h2 {
+    margin: 0;
+    font-size: 17px;
+    color: #111827;
+}
+
+.documentation-section-header p {
+    margin: 5px 0 0;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.section-count {
+    min-width: 25px;
+    height: 25px;
+    padding: 0 7px;
+    border-radius: 20px;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* ======================================================
+   LIST
+   ====================================================== */
+
+.documentation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+/* ======================================================
+   ITEM
+   ====================================================== */
+
+.documentation-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 14px;
+    background: #fafafa;
+}
+
+.documentation-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.documentation-item-header strong {
+    display: block;
+    font-size: 13px;
+    color: #111827;
+}
+
+.patient-id {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    color: #6b7280;
+}
+
+
+/* ======================================================
+   MESSAGE
+   ====================================================== */
+
+.documentation-message {
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #374151;
+}
+
+
+/* ======================================================
+   META
+   ====================================================== */
+
+.documentation-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+    padding-top: 9px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 10px;
+    color: #9ca3af;
+}
+
+
+/* ======================================================
+   STATUS BADGES
+   ====================================================== */
+
+.status-badge,
+.urgency-badge {
+    flex-shrink: 0;
+    padding: 4px 9px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+
+/* Communication */
+
+.status-badge.inbound {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.status-badge.outbound {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+
+/* Observation */
+
+.status-badge.abnormal {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-badge.normal {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+
+/* Follow-up */
+
+.status-badge.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.completed {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+
+/* ======================================================
+   URGENCY
+   ====================================================== */
+
+.urgency-badge.urgent {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.urgency-badge.high {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.urgency-badge.medium {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+
+/* ======================================================
+   OBSERVATION / FOLLOW-UP / ESCALATION CONTENT
+   ====================================================== */
+
+.observation-content,
+.followup-content,
+.escalation-content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.observation-content > div,
+.followup-content > div,
+.escalation-content > div {
+    padding: 10px;
+    border-radius: 6px;
+    background: white;
+    border: 1px solid #eeeeee;
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 10px;
+    color: #9ca3af;
+    text-transform: uppercase;
+}
+
+.observation-content strong,
+.followup-content strong,
+.escalation-content strong {
+    display: block;
+    font-size: 12px;
+    color: #374151;
+    line-height: 1.4;
+}
+
+
+/* ======================================================
+   ESCALATION
+   ====================================================== */
+
+.escalation-item {
+    border-left: 3px solid #ef4444;
+}
+
+
+/* ======================================================
+   EMPTY
+   ====================================================== */
+
+.documentation-empty {
+    padding: 30px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+
+/* ======================================================
+   LOADING
+   ====================================================== */
+
+.documentation-loading {
+    text-align: center;
+    padding: 30px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+
+/* ======================================================
+   ERROR
+   ====================================================== */
+
+.documentation-error {
+    text-align: center;
+    padding: 20px;
+    color: #b91c1c;
+    font-size: 13px;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+   ====================================================== */
+
+@media (max-width: 900px) {
+
+    .documentation-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .documentation-header {
+        flex-direction: column;
+    }
+
+    .documentation-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .observation-content,
+    .followup-content,
+    .escalation-content {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+.documentation-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.documentation-item-top strong {
+    font-size: 14px;
+    color: #111827;
+}
+
+.documentation-item-top span {
+    font-size: 11px;
+    color: #6b7280;
+    padding: 4px 8px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    white-space: nowrap;
+}

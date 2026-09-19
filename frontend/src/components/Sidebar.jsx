@@ -35,6 +35,10 @@ function Sidebar() {
                     Outreach
                 </Link>
 
+                <Link to="/documentation">
+                    Documentation
+                </Link>
+
                 <Link to="/queue">
                     Queue
                 </Link>

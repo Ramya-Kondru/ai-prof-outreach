@@ -17,10 +17,19 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 const aiRoutes = require("./routes/aiRoutes");
-const conversationRoutes =
-    require("./routes/conversationRoutes");
+const conversationRoutes =require("./routes/conversationRoutes");
+const triageRoutes =require("./routes/triageRoutes");
+const ehrRoutes = require("./routes/ehrRoutes");
+const ehrDocumentationRoutes =
+    require("./routes/ehrDocumentationRoutes");
+
+const clinicalRecordsRoutes =
+    require("./routes/clinicalRecordsRoutes");
+const followUpRoutes =
+    require("./routes/followUpRoutes");
 
 const app = express();
+
 
 
 // ======================================================
@@ -101,5 +110,23 @@ app.use(
     conversationRoutes
 );
 
+app.use("/api/triage", triageRoutes);
+
+app.use("/api/ehr", ehrRoutes);
+
+app.use(
+    "/api/ehr",
+    ehrDocumentationRoutes
+);
+
+app.use(
+    "/api/clinical-records",
+    clinicalRecordsRoutes
+);
+
+app.use(
+    "/api/follow-ups",
+    followUpRoutes
+);
 
 module.exports = app;
